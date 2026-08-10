@@ -89,12 +89,6 @@ public class AuthServiceImpl implements AuthService {
                 role
         );
 
-//        return LoginResponseDTO.builder()
-//                .token(token)
-//                .username(request.getUsername())
-//                .role(role)
-//                .build();
-
         return LoginResponseDTO.builder()
                 .id(broker != null ? broker.getId() : null)
                 .token(token)
