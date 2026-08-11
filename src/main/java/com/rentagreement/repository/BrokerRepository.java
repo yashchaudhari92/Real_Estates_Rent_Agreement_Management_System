@@ -1,6 +1,7 @@
 package com.rentagreement.repository;
 
 import com.rentagreement.entity.Broker;
+import com.rentagreement.enums.BrokerStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,13 @@ public interface BrokerRepository extends JpaRepository<Broker, Long> {
     Optional<Broker> findByEmailAndDeletedFalse(String email);
 
     List<Broker> findAllByDeletedFalse();
+
+    // Dashboard counts
+    long countByDeletedFalse();
+
+    long countByDeletedFalseAndStatus(
+            BrokerStatus status
+    );
 
     Page<Broker> findByDeletedFalse(Pageable pageable);
 
