@@ -5,6 +5,9 @@ import com.rentagreement.dto.agreement.AgreementResponseDTO;
 import com.rentagreement.dto.agreement.AgreementUpdateRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.rentagreement.dto.agreement.AgreementRenewalRequestDTO;
+
+import java.util.List;
 
 public interface RentAgreementService {
 
@@ -19,6 +22,15 @@ public interface RentAgreementService {
 
     AgreementResponseDTO getAgreementById(
             Long id
+    );
+
+    List<AgreementResponseDTO> getAgreementHistory(
+            Long id
+    );
+
+    AgreementResponseDTO renewAgreement(
+            Long id,
+            AgreementRenewalRequestDTO request
     );
 
     AgreementResponseDTO updateAgreement(

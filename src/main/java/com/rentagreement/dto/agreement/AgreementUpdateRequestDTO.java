@@ -47,6 +47,9 @@ public class AgreementUpdateRequestDTO {
     @NotNull
     private BigDecimal monthlyRent;
 
+    @NotNull
+    private BigDecimal feesPaid;
+
     // Residential
     private Integer bhk;
 

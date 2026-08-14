@@ -36,6 +36,8 @@ public class AgreementResponseDTO {
     private LocalDate endDate;
     private BigDecimal deposit;
     private BigDecimal monthlyRent;
+    private BigDecimal feesPaid;
+
 
     // Residential
     private Integer bhk;

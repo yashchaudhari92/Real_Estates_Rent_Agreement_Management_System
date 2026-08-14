@@ -22,6 +22,14 @@ public class RentAgreement {
     private Long id;
 
     // ==========================
+    // Agreement Renewal / History
+    // ==========================
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "previous_agreement_id")
+    private RentAgreement previousAgreement;
+
+    // ==========================
     // Building
     // ==========================
 
@@ -70,6 +78,12 @@ public class RentAgreement {
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal monthlyRent;
+
+    // ==========================
+    // Fees Paid for Agreement
+    // ==========================
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal feesPaid;
 
     // ==========================
     // Residential Details

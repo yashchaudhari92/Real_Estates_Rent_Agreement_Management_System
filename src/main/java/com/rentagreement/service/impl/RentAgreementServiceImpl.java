@@ -18,6 +18,14 @@ import com.rentagreement.entity.Broker;
 import com.rentagreement.repository.BrokerRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.rentagreement.repository.AgreementDocumentRepository;
+import com.rentagreement.dto.agreement.AgreementRenewalRequestDTO;
+
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class RentAgreementServiceImpl implements RentAgreementService {
@@ -83,6 +91,7 @@ public class RentAgreementServiceImpl implements RentAgreementService {
                 .endDate(request.getEndDate())
                 .deposit(request.getDeposit())
                 .monthlyRent(request.getMonthlyRent())
+                .feesPaid(request.getFeesPaid())
 
                 // Residential
                 .bhk(request.getBhk())
@@ -155,7 +164,7 @@ public class RentAgreementServiceImpl implements RentAgreementService {
                 !keyword.trim().isEmpty()) {
 
             return agreementRepository
-                    .findByBuildingBrokerIdAndOwnerNameContainingIgnoreCaseAndDeletedFalse(
+                    .findCurrentAgreementsByBrokerIdAndOwnerName(
                             broker.getId(),
                             keyword,
                             pageable
@@ -165,7 +174,7 @@ public class RentAgreementServiceImpl implements RentAgreementService {
         }
 
         return agreementRepository
-                .findByBuildingBrokerIdAndDeletedFalse(
+                .findCurrentAgreementsByBrokerId(
                         broker.getId(),
                         pageable
                 )
@@ -193,6 +202,195 @@ public class RentAgreementServiceImpl implements RentAgreementService {
 
         return mapToDTO(agreement);
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AgreementResponseDTO> getAgreementHistory(
+            Long id
+    ) {
+
+        RentAgreement currentAgreement =
+                agreementRepository.findById(id)
+                        .filter(a -> !a.isDeleted())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Agreement not found"
+                                )
+                        );
+
+        List<AgreementResponseDTO> history =
+                new ArrayList<>();
+
+        Set<Long> visitedIds =
+                new HashSet<>();
+
+        RentAgreement previousAgreement =
+                currentAgreement.getPreviousAgreement();
+
+        while (previousAgreement != null) {
+
+            // Prevent accidental circular relationship
+            if (!visitedIds.add(previousAgreement.getId())) {
+                break;
+            }
+
+            if (!previousAgreement.isDeleted()) {
+
+                history.add(
+                        mapToDTO(previousAgreement)
+                );
+
+            }
+
+            previousAgreement =
+                    previousAgreement.getPreviousAgreement();
+        }
+
+        return history;
+    }
+
+    @Override
+    @Transactional
+    public AgreementResponseDTO renewAgreement(
+            Long id,
+            AgreementRenewalRequestDTO request
+    ) {
+
+        Broker currentBroker = getCurrentBroker();
+
+        // ==========================================
+        // Find Existing Agreement
+        // ==========================================
+
+        RentAgreement oldAgreement =
+                agreementRepository
+                        .findByIdAndBuildingBrokerIdAndDeletedFalse(
+                                id,
+                                currentBroker.getId()
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Agreement not found"
+                                )
+                        );
+
+        // ==========================================
+        // Validate Renewal Dates
+        // ==========================================
+
+        if (request.getEndDate()
+                .isBefore(request.getStartDate())) {
+
+            throw new IllegalArgumentException(
+                    "End date cannot be before start date."
+            );
+        }
+
+        if (!request.getStartDate()
+                .isAfter(oldAgreement.getEndDate())) {
+
+            throw new IllegalArgumentException(
+                    "Renewal start date must be after the current agreement end date."
+            );
+        }
+
+        // ==========================================
+        // Create New Agreement
+        // ==========================================
+
+        RentAgreement newAgreement =
+                RentAgreement.builder()
+
+                        // Building
+                        .building(
+                                oldAgreement.getBuilding()
+                        )
+
+                        // Link to Previous Agreement
+                        .previousAgreement(
+                                oldAgreement
+                        )
+
+                        // Owner
+                        .ownerName(
+                                oldAgreement.getOwnerName()
+                        )
+                        .ownerMobile(
+                                oldAgreement.getOwnerMobile()
+                        )
+                        .ownerEmail(
+                                oldAgreement.getOwnerEmail()
+                        )
+
+                        // Tenant
+                        .tenantName(
+                                oldAgreement.getTenantName()
+                        )
+                        .tenantMobile(
+                                oldAgreement.getTenantMobile()
+                        )
+                        .tenantEmail(
+                                oldAgreement.getTenantEmail()
+                        )
+
+                        // New Agreement Details
+                        .startDate(
+                                request.getStartDate()
+                        )
+                        .endDate(
+                                request.getEndDate()
+                        )
+                        .deposit(
+                                request.getDeposit()
+                        )
+                        .monthlyRent(
+                                request.getMonthlyRent()
+                        )
+                        .feesPaid(
+                                request.getFeesPaid()
+                        )
+
+                        // Residential
+                        .bhk(
+                                oldAgreement.getBhk()
+                        )
+                        .wing(
+                                oldAgreement.getWing()
+                        )
+                        .floor(
+                                oldAgreement.getFloor()
+                        )
+                        .flatNumber(
+                                oldAgreement.getFlatNumber()
+                        )
+
+                        // Commercial
+                        .area(
+                                oldAgreement.getArea()
+                        )
+                        .commercialCategory(
+                                oldAgreement.getCommercialCategory()
+                        )
+
+                        .build();
+
+        // ==========================================
+        // Save New Agreement
+        // ==========================================
+
+        RentAgreement renewedAgreement =
+                agreementRepository.save(
+                        newAgreement
+                );
+
+        // ==========================================
+        // Return New Agreement
+        // ==========================================
+
+        return mapToDTO(
+                renewedAgreement
+        );
     }
 
     @Override
@@ -244,6 +442,7 @@ public class RentAgreementServiceImpl implements RentAgreementService {
         agreement.setEndDate(request.getEndDate());
         agreement.setDeposit(request.getDeposit());
         agreement.setMonthlyRent(request.getMonthlyRent());
+        agreement.setFeesPaid(request.getFeesPaid());
 
         // Residential
         agreement.setBhk(request.getBhk());
@@ -414,6 +613,7 @@ public class RentAgreementServiceImpl implements RentAgreementService {
                 .endDate(agreement.getEndDate())
                 .deposit(agreement.getDeposit())
                 .monthlyRent(agreement.getMonthlyRent())
+                .feesPaid((agreement.getFeesPaid()))
 
                 // Residential
                 .bhk(agreement.getBhk())

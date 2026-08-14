@@ -53,7 +53,7 @@ public class AgreementEmailServiceImpl
                         + recipientName
                         + ",\n\n"
 
-                        + "This is a reminder that the rent agreement "
+                        + "This is a reminder, your rent agreement "
                         + "for "
                         + buildingName
                         + " is expiring soon.\n\n"
