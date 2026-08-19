@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.rentagreement.dto.agreement.DeleteAgreementRequestDTO;
 
 import java.util.List;
 
@@ -146,10 +147,14 @@ public class RentAgreementController {
     // Soft Delete Agreement
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteAgreement(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @Valid @RequestBody DeleteAgreementRequestDTO request
     ) {
 
-        agreementService.deleteAgreement(id);
+        agreementService.deleteAgreement(
+                id,
+                request.getDeletePassword()
+        );
 
         return ResponseEntity.ok(
                 new ApiResponse<>(

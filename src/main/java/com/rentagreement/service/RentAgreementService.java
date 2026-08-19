@@ -39,7 +39,8 @@ public interface RentAgreementService {
     );
 
     void deleteAgreement(
-            Long id
+            Long id,
+            String deletePassword
     );
 
 }

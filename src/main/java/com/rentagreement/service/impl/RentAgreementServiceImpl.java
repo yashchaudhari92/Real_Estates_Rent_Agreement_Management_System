@@ -13,6 +13,7 @@ import com.rentagreement.repository.BuildingRepository;
 import com.rentagreement.repository.RentAgreementRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.rentagreement.entity.Broker;
 import com.rentagreement.repository.BrokerRepository;
@@ -38,17 +39,21 @@ public class RentAgreementServiceImpl implements RentAgreementService {
 
     private final AgreementDocumentRepository documentRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     public RentAgreementServiceImpl(
             RentAgreementRepository agreementRepository,
             BuildingRepository buildingRepository,
             BrokerRepository brokerRepository,
-            AgreementDocumentRepository documentRepository
+            AgreementDocumentRepository documentRepository,
+            PasswordEncoder passwordEncoder
     ) {
 
         this.agreementRepository = agreementRepository;
         this.buildingRepository = buildingRepository;
         this.brokerRepository = brokerRepository;
         this.documentRepository = documentRepository;
+        this.passwordEncoder = passwordEncoder;
 
     }
 
@@ -488,11 +493,43 @@ public class RentAgreementServiceImpl implements RentAgreementService {
 
     @Override
     public void deleteAgreement(
-            Long id
+            Long id,
+            String deletePassword
     ) {
 
         Broker broker = getCurrentBroker();
 
+        /*
+         * Check whether broker has created
+         * a separate delete password.
+         */
+        if (broker.getDeletePassword() == null
+                || broker.getDeletePassword().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Please create your agreement delete password first"
+            );
+        }
+
+        /*
+         * Verify the separate delete password.
+         *
+         * Login password is NOT used here.
+         */
+        if (!passwordEncoder.matches(
+                deletePassword,
+                broker.getDeletePassword()
+        )) {
+
+            throw new IllegalArgumentException(
+                    "Invalid agreement delete password"
+            );
+        }
+
+        /*
+         * Find agreement belonging to
+         * the currently logged-in broker.
+         */
         RentAgreement agreement =
                 agreementRepository
                         .findByIdAndBuildingBrokerIdAndDeletedFalse(
@@ -502,8 +539,12 @@ public class RentAgreementServiceImpl implements RentAgreementService {
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
                                         "Agreement not found"
-                                ));
+                                )
+                        );
 
+        /*
+         * Existing soft-delete logic remains unchanged.
+         */
         agreement.setDeleted(true);
 
         agreementRepository.save(agreement);

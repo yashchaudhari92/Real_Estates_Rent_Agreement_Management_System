@@ -1,10 +1,13 @@
 package com.rentagreement.controller;
 
+import com.rentagreement.dto.agreement.AgreementResponseDTO;
 import com.rentagreement.dto.dashboard.BrokerDashboardResponseDTO;
 import com.rentagreement.response.ApiResponse;
 import com.rentagreement.service.BrokerDashboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/broker/dashboard")
@@ -37,6 +40,35 @@ public class BrokerDashboardController {
                         "Broker Dashboard Stats Fetched Successfully",
 
                         dashboardService.getDashboardStats()
+
+                )
+
+        );
+
+    }
+
+
+    @GetMapping("/expiring")
+    public ResponseEntity<
+            ApiResponse<List<AgreementResponseDTO>>
+            > getExpiringAgreementsByMonth(
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+
+        return ResponseEntity.ok(
+
+                new ApiResponse<>(
+
+                        true,
+
+                        "Expiring Agreements Fetched Successfully",
+
+                        dashboardService
+                                .getExpiringAgreementsByMonth(
+                                        year,
+                                        month
+                                )
 
                 )
 

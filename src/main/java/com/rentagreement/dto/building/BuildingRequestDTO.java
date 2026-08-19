@@ -10,6 +10,9 @@ public class BuildingRequestDTO {
     @NotBlank
     private String buildingName;
 
+    @NotBlank
+    private String location;
+
     @NotNull
     private Long brokerId;
 

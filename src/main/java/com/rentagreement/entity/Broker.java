@@ -38,6 +38,9 @@ public class Broker {
     @Column(nullable = false)
     private String password;
 
+    @Column
+    private String deletePassword;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;

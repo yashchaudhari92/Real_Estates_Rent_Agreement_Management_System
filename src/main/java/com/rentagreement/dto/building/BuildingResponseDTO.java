@@ -14,6 +14,8 @@ public class BuildingResponseDTO {
 
     private String buildingName;
 
+    private String location;
+
     private PropertyType propertyType;
 
     private Long brokerId;
