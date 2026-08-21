@@ -54,7 +54,7 @@ public class Broker {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
+    
     // Automatically Set Created & Updated Date
     @PrePersist
     public void prePersist() {

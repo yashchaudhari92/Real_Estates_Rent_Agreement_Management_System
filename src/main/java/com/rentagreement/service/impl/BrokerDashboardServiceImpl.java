@@ -101,7 +101,7 @@ public class BrokerDashboardServiceImpl
 
         long expiredAgreements =
                 agreementRepository
-                        .countByBuildingBrokerIdAndEndDateBeforeAndDeletedFalse(
+                        .countByBuildingBrokerIdAndEndDateLessThanEqualAndDeletedFalse(
                                 brokerId,
                                 today
                         );

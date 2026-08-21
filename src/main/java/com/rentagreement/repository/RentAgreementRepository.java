@@ -99,11 +99,16 @@ public interface RentAgreementRepository
             LocalDate endDateEnd
     );
 
-
-    long countByBuildingBrokerIdAndEndDateBeforeAndDeletedFalse(
+    long countByBuildingBrokerIdAndEndDateLessThanEqualAndDeletedFalse(
             Long brokerId,
             LocalDate endDate
     );
+
+
+//    long countByBuildingBrokerIdAndEndDateBeforeAndDeletedFalse(
+//            Long brokerId,
+//            LocalDate endDate
+//    );
 
 
     Page<RentAgreement> findByBuildingBrokerIdAndDeletedFalseOrderByIdDesc(
