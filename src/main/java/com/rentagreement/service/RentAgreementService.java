@@ -38,6 +38,10 @@ public interface RentAgreementService {
             AgreementUpdateRequestDTO request
     );
 
+    List<AgreementResponseDTO> getAgreementsByUser(
+            Long userId
+    );
+
     void deleteAgreement(
             Long id,
             String deletePassword

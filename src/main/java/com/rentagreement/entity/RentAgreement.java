@@ -3,6 +3,7 @@ package com.rentagreement.entity;
 import com.rentagreement.enums.CommercialCategory;
 import jakarta.persistence.*;
 import lombok.*;
+import com.rentagreement.entity.Broker;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,6 +37,14 @@ public class RentAgreement {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id", nullable = false)
     private Building building;
+
+    // ==========================
+    // Agreement Created By
+    // ==========================
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_broker_id")
+    private Broker createdByBroker;
 
     // ==========================
     // Owner Details

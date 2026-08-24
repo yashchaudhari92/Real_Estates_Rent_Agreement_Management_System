@@ -57,10 +57,10 @@ public class AgreementExpiryScheduler {
     public void checkExpiringAgreements() {
 
         LocalDate targetDate =
-                LocalDate.now().plusDays(6);
+                LocalDate.now().plusMonths(1);
 
         logger.info(
-                "Checking agreements expiring on: {}",
+                "Checking agreements expiring one month from today on: {}",
                 targetDate
         );
 
@@ -75,7 +75,7 @@ public class AgreementExpiryScheduler {
         if (agreements.isEmpty()) {
 
             logger.info(
-                    "No agreements expiring in 6 days."
+                    "No agreements expiring one month from today."
             );
 
             return;
@@ -84,7 +84,7 @@ public class AgreementExpiryScheduler {
 
 
         logger.info(
-                "{} agreement(s) found expiring in 6 days.",
+                "{} agreement(s) found expiring one month from today.",
                 agreements.size()
         );
 

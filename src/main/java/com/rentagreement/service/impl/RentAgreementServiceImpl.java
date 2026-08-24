@@ -62,7 +62,9 @@ public class RentAgreementServiceImpl implements RentAgreementService {
             AgreementRequestDTO request
     ) {
 
-        Broker broker = getCurrentBroker();
+        // Broker broker = getCurrentBroker();
+        Broker currentBroker = getCurrentBroker();
+        Broker broker = getMainBroker();
 
         Building building =
                 buildingRepository
@@ -80,6 +82,8 @@ public class RentAgreementServiceImpl implements RentAgreementService {
         RentAgreement agreement = RentAgreement.builder()
 
                 .building(building)
+
+                .createdByBroker(currentBroker)
 
                 // Owner
                 .ownerName(request.getOwnerName())
@@ -163,7 +167,8 @@ public class RentAgreementServiceImpl implements RentAgreementService {
             Pageable pageable
     ) {
 
-        Broker broker = getCurrentBroker();
+        // Broker broker = getCurrentBroker();
+        Broker broker = getMainBroker();
 
         if (keyword != null &&
                 !keyword.trim().isEmpty()) {
@@ -192,7 +197,8 @@ public class RentAgreementServiceImpl implements RentAgreementService {
             Long id
     ) {
 
-        Broker broker = getCurrentBroker();
+        // Broker broker = getCurrentBroker();
+        Broker broker = getMainBroker();
 
         RentAgreement agreement =
                 agreementRepository
@@ -215,9 +221,23 @@ public class RentAgreementServiceImpl implements RentAgreementService {
             Long id
     ) {
 
+//        RentAgreement currentAgreement =
+//                agreementRepository.findById(id)
+//                        .filter(a -> !a.isDeleted())
+//                        .orElseThrow(() ->
+//                                new ResourceNotFoundException(
+//                                        "Agreement not found"
+//                                )
+//                        );
+
+        Broker mainBroker = getMainBroker();
+
         RentAgreement currentAgreement =
-                agreementRepository.findById(id)
-                        .filter(a -> !a.isDeleted())
+                agreementRepository
+                        .findByIdAndBuildingBrokerIdAndDeletedFalse(
+                                id,
+                                mainBroker.getId()
+                        )
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
                                         "Agreement not found"
@@ -262,7 +282,8 @@ public class RentAgreementServiceImpl implements RentAgreementService {
             AgreementRenewalRequestDTO request
     ) {
 
-        Broker currentBroker = getCurrentBroker();
+        // Broker currentBroker = getCurrentBroker();
+        Broker currentBroker = getMainBroker();
 
         // ==========================================
         // Find Existing Agreement
@@ -404,7 +425,8 @@ public class RentAgreementServiceImpl implements RentAgreementService {
             AgreementUpdateRequestDTO request
     ) {
 
-        Broker currentBroker = getCurrentBroker();
+        // Broker currentBroker = getCurrentBroker();
+        Broker currentBroker = getMainBroker();
 
         RentAgreement agreement =
                 agreementRepository
@@ -497,14 +519,24 @@ public class RentAgreementServiceImpl implements RentAgreementService {
             String deletePassword
     ) {
 
-        Broker broker = getCurrentBroker();
+        Broker currentBroker = getCurrentBroker();
 
         /*
-         * Check whether broker has created
+         * Only Main Broker can delete agreements.
+         */
+        if (currentBroker.getParentBroker() != null) {
+
+            throw new IllegalArgumentException(
+                    "You cannot delete any agreement. These agreements are only deleted by your Main Admin."
+            );
+        }
+
+        /*
+         * Check whether main broker has created
          * a separate delete password.
          */
-        if (broker.getDeletePassword() == null
-                || broker.getDeletePassword().isBlank()) {
+        if (currentBroker.getDeletePassword() == null
+                || currentBroker.getDeletePassword().isBlank()) {
 
             throw new IllegalArgumentException(
                     "Please create your agreement delete password first"
@@ -513,12 +545,10 @@ public class RentAgreementServiceImpl implements RentAgreementService {
 
         /*
          * Verify the separate delete password.
-         *
-         * Login password is NOT used here.
          */
         if (!passwordEncoder.matches(
                 deletePassword,
-                broker.getDeletePassword()
+                currentBroker.getDeletePassword()
         )) {
 
             throw new IllegalArgumentException(
@@ -527,14 +557,13 @@ public class RentAgreementServiceImpl implements RentAgreementService {
         }
 
         /*
-         * Find agreement belonging to
-         * the currently logged-in broker.
+         * Existing agreement ownership logic remains unchanged.
          */
         RentAgreement agreement =
                 agreementRepository
                         .findByIdAndBuildingBrokerIdAndDeletedFalse(
                                 id,
-                                broker.getId()
+                                currentBroker.getId()
                         )
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
@@ -548,7 +577,136 @@ public class RentAgreementServiceImpl implements RentAgreementService {
         agreement.setDeleted(true);
 
         agreementRepository.save(agreement);
+    }
 
+//    @Override
+//    public void deleteAgreement(
+//            Long id,
+//            String deletePassword
+//    ) {
+//
+//        Broker broker = getCurrentBroker();
+//
+//        /*
+//         * Check whether broker has created
+//         * a separate delete password.
+//         */
+//        if (broker.getDeletePassword() == null
+//                || broker.getDeletePassword().isBlank()) {
+//
+//            throw new IllegalArgumentException(
+//                    "Please create your agreement delete password first"
+//            );
+//        }
+//
+//        /*
+//         * Verify the separate delete password.
+//         *
+//         * Login password is NOT used here.
+//         */
+//        if (!passwordEncoder.matches(
+//                deletePassword,
+//                broker.getDeletePassword()
+//        )) {
+//
+//            throw new IllegalArgumentException(
+//                    "Invalid agreement delete password"
+//            );
+//        }
+//
+//        /*
+//         * Find agreement belonging to
+//         * the currently logged-in broker.
+//         */
+////
+//        Broker mainBroker = getMainBroker();
+//
+//        RentAgreement agreement =
+//                agreementRepository
+//                        .findByIdAndBuildingBrokerIdAndDeletedFalse(
+//                                id,
+//                                mainBroker.getId()
+//                        )
+//                        .orElseThrow(() ->
+//                                new ResourceNotFoundException(
+//                                        "Agreement not found"
+//                                )
+//                        );
+//
+//        /*
+//         * Existing soft-delete logic remains unchanged.
+//         */
+//        agreement.setDeleted(true);
+//
+//        agreementRepository.save(agreement);
+//
+//    }
+
+    private Broker getMainBroker() {
+
+        Broker currentBroker =
+                getCurrentBroker();
+
+        if (currentBroker.getParentBroker() == null) {
+            return currentBroker;
+        }
+
+        return currentBroker.getParentBroker();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AgreementResponseDTO> getAgreementsByUser(
+            Long userId
+    ) {
+
+        Broker currentBroker = getCurrentBroker();
+
+        /*
+         * Only Main Broker can view
+         * agreements by sub user.
+         */
+        if (currentBroker.getParentBroker() != null) {
+
+            throw new IllegalArgumentException(
+                    "Only Main Broker can view user agreements"
+            );
+        }
+
+        /*
+         * Verify that selected user belongs
+         * to the logged-in Main Broker.
+         */
+        Broker user =
+                brokerRepository
+                        .findById(userId)
+                        .filter(broker ->
+                                !broker.isDeleted()
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "User not found"
+                                )
+                        );
+
+        if (user.getParentBroker() == null
+                || !user.getParentBroker()
+                .getId()
+                .equals(currentBroker.getId())) {
+
+            throw new IllegalArgumentException(
+                    "User does not belong to your organization"
+            );
+        }
+
+        return agreementRepository
+                .findCurrentAgreementsByCreatedByBrokerId(
+                        currentBroker.getId(),
+                        userId
+                )
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
     private void validatePropertyDetails(

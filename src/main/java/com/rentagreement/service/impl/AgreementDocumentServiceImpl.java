@@ -55,7 +55,8 @@ public class AgreementDocumentServiceImpl
             MultipartFile file
     ) {
 
-        Broker broker = getCurrentBroker();
+        // Broker broker = getCurrentBroker();
+        Broker broker = getMainBroker();
 
         RentAgreement agreement =
                 agreementRepository
@@ -147,7 +148,8 @@ public class AgreementDocumentServiceImpl
             Long agreementId
     ) {
 
-        Broker broker = getCurrentBroker();
+        // Broker broker = getCurrentBroker();
+        Broker broker = getMainBroker();
 
         // Verify that this agreement belongs
         // to the logged-in broker.
@@ -179,7 +181,8 @@ public class AgreementDocumentServiceImpl
             MultipartFile file
     ) {
 
-        Broker broker = getCurrentBroker();
+        // Broker broker = getCurrentBroker();
+        Broker broker = getMainBroker();
 
         RentAgreement agreement =
                 agreementRepository
@@ -293,7 +296,8 @@ public class AgreementDocumentServiceImpl
             Long agreementId
     ) {
 
-        Broker broker = getCurrentBroker();
+        // Broker broker = getCurrentBroker();
+        Broker broker = getMainBroker();
 
         RentAgreement agreement =
                 agreementRepository
@@ -337,6 +341,18 @@ public class AgreementDocumentServiceImpl
                                 "Logged-in broker not found"
                         ));
 
+    }
+
+    private Broker getMainBroker() {
+
+        Broker currentBroker =
+                getCurrentBroker();
+
+        if (currentBroker.getParentBroker() == null) {
+            return currentBroker;
+        }
+
+        return currentBroker.getParentBroker();
     }
 
     private void validateFile(

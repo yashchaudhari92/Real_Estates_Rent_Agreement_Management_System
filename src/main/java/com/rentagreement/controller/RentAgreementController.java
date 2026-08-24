@@ -75,6 +75,22 @@ public class RentAgreementController {
 
     }
 
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<
+            ApiResponse<List<AgreementResponseDTO>>
+            > getAgreementsByUser(
+            @PathVariable Long userId
+    ) {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "User Agreements Fetched Successfully",
+                        agreementService.getAgreementsByUser(userId)
+                )
+        );
+    }
+
     // View Agreement By Id
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AgreementResponseDTO>> getAgreementById(

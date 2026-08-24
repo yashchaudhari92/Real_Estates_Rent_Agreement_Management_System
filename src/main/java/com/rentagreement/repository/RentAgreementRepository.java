@@ -11,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public interface RentAgreementRepository
         extends JpaRepository<RentAgreement, Long> {
@@ -37,6 +39,25 @@ public interface RentAgreementRepository
     Page<RentAgreement> findCurrentAgreementsByBrokerId(
             @Param("brokerId") Long brokerId,
             Pageable pageable
+    );
+
+    @Query("""
+        SELECT a
+        FROM RentAgreement a
+        WHERE a.building.broker.id = :mainBrokerId
+          AND a.createdByBroker.id = :createdByBrokerId
+          AND a.deleted = false
+          AND NOT EXISTS (
+                SELECT 1
+                FROM RentAgreement newer
+                WHERE newer.previousAgreement.id = a.id
+                  AND newer.deleted = false
+          )
+        ORDER BY a.id DESC
+        """)
+    List<RentAgreement> findCurrentAgreementsByCreatedByBrokerId(
+            @Param("mainBrokerId") Long mainBrokerId,
+            @Param("createdByBrokerId") Long createdByBrokerId
     );
 
 
@@ -131,6 +152,24 @@ public interface RentAgreementRepository
             @Param("today") LocalDate today,
             @Param("monthStart") LocalDate monthStart,
             @Param("monthEnd") LocalDate monthEnd
+    );
+
+    // ==========================================================
+    // Agreement Fees Collection
+    // ==========================================================
+
+    @Query("""
+        SELECT COALESCE(SUM(a.feesPaid), 0)
+        FROM RentAgreement a
+        WHERE a.building.broker.id = :brokerId
+          AND a.deleted = false
+          AND a.createdDate >= :fromDateTime
+          AND a.createdDate < :toDateTime
+        """)
+    BigDecimal sumFeesPaidByBrokerIdAndCreatedDateBetween(
+            @Param("brokerId") Long brokerId,
+            @Param("fromDateTime") LocalDateTime fromDateTime,
+            @Param("toDateTime") LocalDateTime toDateTime
     );
 
 

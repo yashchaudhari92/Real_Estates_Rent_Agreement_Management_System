@@ -46,9 +46,27 @@ public class BrokerDashboardServiceImpl
     @Override
     public BrokerDashboardResponseDTO getDashboardStats() {
 
-        Broker broker = getCurrentBroker();
+//        Broker broker = getCurrentBroker();
+//
+//        Long brokerId = broker.getId();
 
-        Long brokerId = broker.getId();
+//        Broker currentBroker = getCurrentBroker();
+//
+//        Broker broker =
+//                currentBroker.getParentBroker() == null
+//                        ? currentBroker
+//                        : currentBroker.getParentBroker();
+//
+//        Long brokerId = broker.getId();
+
+        Broker currentBroker = getCurrentBroker();
+
+        Broker organizationBroker =
+                currentBroker.getParentBroker() == null
+                        ? currentBroker
+                        : currentBroker.getParentBroker();
+
+        Long brokerId = organizationBroker.getId();
 
         LocalDate today = LocalDate.now();
 
@@ -124,9 +142,9 @@ public class BrokerDashboardServiceImpl
 
         return BrokerDashboardResponseDTO.builder()
 
-                .brokerName(broker.getBrokerName())
+                .brokerName(currentBroker.getBrokerName())
 
-                .companyName(broker.getCompanyName())
+                .companyName(currentBroker.getCompanyName())
 
                 .totalBuildings(totalBuildings)
 
@@ -159,7 +177,14 @@ public class BrokerDashboardServiceImpl
 
         }
 
-        Broker broker = getCurrentBroker();
+        // Broker broker = getCurrentBroker();
+
+        Broker currentBroker = getCurrentBroker();
+
+        Broker broker =
+                currentBroker.getParentBroker() == null
+                        ? currentBroker
+                        : currentBroker.getParentBroker();
 
         LocalDate monthStart =
                 LocalDate.of(
