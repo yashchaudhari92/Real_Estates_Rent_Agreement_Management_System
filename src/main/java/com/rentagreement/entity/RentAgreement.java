@@ -4,6 +4,7 @@ import com.rentagreement.enums.CommercialCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import com.rentagreement.entity.Broker;
+import com.rentagreement.enums.AgreementStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -76,6 +77,16 @@ public class RentAgreement {
     // Agreement Details
     // ==========================
 
+    // Token Number
+    @Column(length = 100)
+    private String tokenNo;
+
+    @Column(length = 150)
+    private String executiveName;
+
+    @Column(length = 250)
+    private String source;
+
     @Column(nullable = false)
     private LocalDate startDate;
 
@@ -93,6 +104,13 @@ public class RentAgreement {
     // ==========================
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal feesPaid;
+
+    // ==========================
+    // Agreement Status
+    // ==========================
+
+    @Enumerated(EnumType.STRING)
+    private AgreementStatus status = AgreementStatus.IN_PROCESS;
 
     // ==========================
     // Residential Details
@@ -140,8 +158,11 @@ public class RentAgreement {
 
         createdDate = LocalDateTime.now();
 
-        deleted = false;
+        if (status == null) {
+            status = AgreementStatus.IN_PROCESS;
+        }
 
+        deleted = false;
     }
 
 }

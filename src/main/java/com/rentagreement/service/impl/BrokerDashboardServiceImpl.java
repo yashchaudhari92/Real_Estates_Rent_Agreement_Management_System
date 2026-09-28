@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.rentagreement.enums.AgreementStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -45,19 +46,6 @@ public class BrokerDashboardServiceImpl
 
     @Override
     public BrokerDashboardResponseDTO getDashboardStats() {
-
-//        Broker broker = getCurrentBroker();
-//
-//        Long brokerId = broker.getId();
-
-//        Broker currentBroker = getCurrentBroker();
-//
-//        Broker broker =
-//                currentBroker.getParentBroker() == null
-//                        ? currentBroker
-//                        : currentBroker.getParentBroker();
-//
-//        Long brokerId = broker.getId();
 
         Broker currentBroker = getCurrentBroker();
 
@@ -281,6 +269,9 @@ public class BrokerDashboardServiceImpl
                 )
 
                 // Agreement
+                .tokenNo(
+                        agreement.getTokenNo()
+                )
                 .startDate(
                         agreement.getStartDate()
                 )
@@ -295,6 +286,12 @@ public class BrokerDashboardServiceImpl
 
                 .monthlyRent(
                         agreement.getMonthlyRent()
+                )
+
+                .status(
+                        agreement.getStatus() == null
+                                ? AgreementStatus.IN_PROCESS
+                                : agreement.getStatus()
                 )
 
                 // Residential

@@ -208,11 +208,6 @@ public class AgreementExpiryScheduler {
                         agreement
                 )
 
-//                buildNotificationMessage(
-//                        agreement,
-//                        name
-//                )
-
         );
 
     }

@@ -8,6 +8,8 @@ import java.time.LocalDate;
 
 public class AgreementRenewalRequestDTO {
 
+    private String tokenNo;
+
     @NotNull(message = "Start date is required")
     private LocalDate startDate;
 
@@ -39,6 +41,14 @@ public class AgreementRenewalRequestDTO {
     private BigDecimal feesPaid;
 
     public AgreementRenewalRequestDTO() {
+    }
+
+    public String getTokenNo() {
+        return tokenNo;
+    }
+
+    public void setTokenNo(String tokenNo) {
+        this.tokenNo = tokenNo;
     }
 
     public LocalDate getStartDate() {

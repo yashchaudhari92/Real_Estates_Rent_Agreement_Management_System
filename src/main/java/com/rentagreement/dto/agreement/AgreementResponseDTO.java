@@ -2,6 +2,7 @@ package com.rentagreement.dto.agreement;
 
 import com.rentagreement.enums.CommercialCategory;
 import com.rentagreement.enums.PropertyType;
+import com.rentagreement.enums.AgreementStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -32,11 +33,15 @@ public class AgreementResponseDTO {
     private String tenantEmail;
 
     // Agreement
+    private String tokenNo;
+    private String executiveName;
+    private String source;
     private LocalDate startDate;
     private LocalDate endDate;
     private BigDecimal deposit;
     private BigDecimal monthlyRent;
     private BigDecimal feesPaid;
+    private AgreementStatus status;
 
 
     // Residential

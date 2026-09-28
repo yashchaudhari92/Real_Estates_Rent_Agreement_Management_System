@@ -20,6 +20,7 @@ import com.rentagreement.repository.BrokerRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.rentagreement.repository.AgreementDocumentRepository;
 import com.rentagreement.dto.agreement.AgreementRenewalRequestDTO;
+import com.rentagreement.enums.AgreementStatus;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,11 +97,15 @@ public class RentAgreementServiceImpl implements RentAgreementService {
                 .tenantEmail(request.getTenantEmail())
 
                 // Agreement
+                .tokenNo(request.getTokenNo())
+                .executiveName(request.getExecutiveName())
+                .source(request.getSource())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .deposit(request.getDeposit())
                 .monthlyRent(request.getMonthlyRent())
                 .feesPaid(request.getFeesPaid())
+                .status(request.getStatus())
 
                 // Residential
                 .bhk(request.getBhk())
@@ -220,15 +225,6 @@ public class RentAgreementServiceImpl implements RentAgreementService {
     public List<AgreementResponseDTO> getAgreementHistory(
             Long id
     ) {
-
-//        RentAgreement currentAgreement =
-//                agreementRepository.findById(id)
-//                        .filter(a -> !a.isDeleted())
-//                        .orElseThrow(() ->
-//                                new ResourceNotFoundException(
-//                                        "Agreement not found"
-//                                )
-//                        );
 
         Broker mainBroker = getMainBroker();
 
@@ -361,6 +357,9 @@ public class RentAgreementServiceImpl implements RentAgreementService {
                         )
 
                         // New Agreement Details
+                        .tokenNo(
+                                request.getTokenNo()
+                        )
                         .startDate(
                                 request.getStartDate()
                         )
@@ -465,11 +464,15 @@ public class RentAgreementServiceImpl implements RentAgreementService {
         agreement.setTenantEmail(request.getTenantEmail());
 
         // Agreement
+        agreement.setTokenNo(request.getTokenNo());
+        agreement.setExecutiveName(request.getExecutiveName());
+        agreement.setSource(request.getSource());
         agreement.setStartDate(request.getStartDate());
         agreement.setEndDate(request.getEndDate());
         agreement.setDeposit(request.getDeposit());
         agreement.setMonthlyRent(request.getMonthlyRent());
         agreement.setFeesPaid(request.getFeesPaid());
+        agreement.setStatus(request.getStatus());
 
         // Residential
         agreement.setBhk(request.getBhk());
@@ -578,69 +581,6 @@ public class RentAgreementServiceImpl implements RentAgreementService {
 
         agreementRepository.save(agreement);
     }
-
-//    @Override
-//    public void deleteAgreement(
-//            Long id,
-//            String deletePassword
-//    ) {
-//
-//        Broker broker = getCurrentBroker();
-//
-//        /*
-//         * Check whether broker has created
-//         * a separate delete password.
-//         */
-//        if (broker.getDeletePassword() == null
-//                || broker.getDeletePassword().isBlank()) {
-//
-//            throw new IllegalArgumentException(
-//                    "Please create your agreement delete password first"
-//            );
-//        }
-//
-//        /*
-//         * Verify the separate delete password.
-//         *
-//         * Login password is NOT used here.
-//         */
-//        if (!passwordEncoder.matches(
-//                deletePassword,
-//                broker.getDeletePassword()
-//        )) {
-//
-//            throw new IllegalArgumentException(
-//                    "Invalid agreement delete password"
-//            );
-//        }
-//
-//        /*
-//         * Find agreement belonging to
-//         * the currently logged-in broker.
-//         */
-////
-//        Broker mainBroker = getMainBroker();
-//
-//        RentAgreement agreement =
-//                agreementRepository
-//                        .findByIdAndBuildingBrokerIdAndDeletedFalse(
-//                                id,
-//                                mainBroker.getId()
-//                        )
-//                        .orElseThrow(() ->
-//                                new ResourceNotFoundException(
-//                                        "Agreement not found"
-//                                )
-//                        );
-//
-//        /*
-//         * Existing soft-delete logic remains unchanged.
-//         */
-//        agreement.setDeleted(true);
-//
-//        agreementRepository.save(agreement);
-//
-//    }
 
     private Broker getMainBroker() {
 
@@ -808,11 +748,19 @@ public class RentAgreementServiceImpl implements RentAgreementService {
                 .tenantEmail(agreement.getTenantEmail())
 
                 // Agreement
+                .tokenNo(agreement.getTokenNo())
+                .executiveName(agreement.getExecutiveName())
+                .source(agreement.getSource())
                 .startDate(agreement.getStartDate())
                 .endDate(agreement.getEndDate())
                 .deposit(agreement.getDeposit())
                 .monthlyRent(agreement.getMonthlyRent())
                 .feesPaid((agreement.getFeesPaid()))
+                .status(
+                        agreement.getStatus() == null
+                                ? AgreementStatus.IN_PROCESS
+                                : agreement.getStatus()
+                )
 
                 // Residential
                 .bhk(agreement.getBhk())

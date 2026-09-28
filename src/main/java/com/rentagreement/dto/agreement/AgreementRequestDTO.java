@@ -2,6 +2,7 @@ package com.rentagreement.dto.agreement;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import com.rentagreement.enums.AgreementStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,6 +36,13 @@ public class AgreementRequestDTO {
     private String tenantEmail;
 
     // Agreement
+
+    private String tokenNo;
+
+    private String executiveName;
+
+    private String source;
+
     @NotNull
     private LocalDate startDate;
 
@@ -49,6 +57,9 @@ public class AgreementRequestDTO {
 
     @NotNull
     private BigDecimal feesPaid;
+
+    @NotNull
+    private AgreementStatus status;
 
     // Residential
     private Integer bhk;
