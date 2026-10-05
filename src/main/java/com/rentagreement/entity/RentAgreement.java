@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.rentagreement.entity.Broker;
 import com.rentagreement.enums.AgreementStatus;
+import com.rentagreement.enums.AgreementFeeStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -104,6 +105,10 @@ public class RentAgreement {
     // ==========================
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal feesPaid;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "fee_status")
+    private AgreementFeeStatus feeStatus = AgreementFeeStatus.PENDING;
 
     // ==========================
     // Agreement Status

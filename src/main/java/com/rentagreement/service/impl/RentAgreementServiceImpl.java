@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.rentagreement.repository.AgreementDocumentRepository;
 import com.rentagreement.dto.agreement.AgreementRenewalRequestDTO;
 import com.rentagreement.enums.AgreementStatus;
+import com.rentagreement.enums.AgreementFeeStatus;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,6 +106,11 @@ public class RentAgreementServiceImpl implements RentAgreementService {
                 .deposit(request.getDeposit())
                 .monthlyRent(request.getMonthlyRent())
                 .feesPaid(request.getFeesPaid())
+                .feeStatus(
+                        request.getFeeStatus() == null
+                                ? AgreementFeeStatus.PENDING
+                                : request.getFeeStatus()
+                )
                 .status(request.getStatus())
 
                 // Residential
@@ -472,6 +478,11 @@ public class RentAgreementServiceImpl implements RentAgreementService {
         agreement.setDeposit(request.getDeposit());
         agreement.setMonthlyRent(request.getMonthlyRent());
         agreement.setFeesPaid(request.getFeesPaid());
+        agreement.setFeeStatus(
+                request.getFeeStatus() == null
+                        ? AgreementFeeStatus.PENDING
+                        : request.getFeeStatus()
+        );
         agreement.setStatus(request.getStatus());
 
         // Residential
@@ -756,6 +767,11 @@ public class RentAgreementServiceImpl implements RentAgreementService {
                 .deposit(agreement.getDeposit())
                 .monthlyRent(agreement.getMonthlyRent())
                 .feesPaid((agreement.getFeesPaid()))
+                .feeStatus(
+                        agreement.getFeeStatus() == null
+                                ? AgreementFeeStatus.PENDING
+                                : agreement.getFeeStatus()
+                )
                 .status(
                         agreement.getStatus() == null
                                 ? AgreementStatus.IN_PROCESS

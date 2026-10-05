@@ -3,6 +3,7 @@ package com.rentagreement.dto.agreement;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import com.rentagreement.enums.AgreementStatus;
+import com.rentagreement.enums.AgreementFeeStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -57,6 +58,8 @@ public class AgreementUpdateRequestDTO {
 
     @NotNull
     private BigDecimal feesPaid;
+
+    private AgreementFeeStatus feeStatus;
 
     @NotNull
     private AgreementStatus status;

@@ -172,6 +172,21 @@ public interface RentAgreementRepository
             @Param("toDateTime") LocalDateTime toDateTime
     );
 
+    @Query("""
+    SELECT COALESCE(SUM(a.feesPaid), 0)
+    FROM RentAgreement a
+    WHERE a.building.broker.id = :brokerId
+      AND a.deleted = false
+      AND a.feeStatus = com.rentagreement.enums.AgreementFeeStatus.PENDING
+      AND a.createdDate >= :fromDateTime
+      AND a.createdDate < :toDateTime
+""")
+    BigDecimal sumPendingFeesByBrokerIdAndCreatedDateBetween(
+            @Param("brokerId") Long brokerId,
+            @Param("fromDateTime") LocalDateTime fromDateTime,
+            @Param("toDateTime") LocalDateTime toDateTime
+    );
+
 
     // ==========================================================
     // Agreement Expiry Scheduler

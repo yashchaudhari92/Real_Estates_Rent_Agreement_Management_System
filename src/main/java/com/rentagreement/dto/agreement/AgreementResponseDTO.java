@@ -3,6 +3,7 @@ package com.rentagreement.dto.agreement;
 import com.rentagreement.enums.CommercialCategory;
 import com.rentagreement.enums.PropertyType;
 import com.rentagreement.enums.AgreementStatus;
+import com.rentagreement.enums.AgreementFeeStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -41,6 +42,7 @@ public class AgreementResponseDTO {
     private BigDecimal deposit;
     private BigDecimal monthlyRent;
     private BigDecimal feesPaid;
+    private AgreementFeeStatus feeStatus;
     private AgreementStatus status;
 
 

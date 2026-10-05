@@ -16,6 +16,10 @@ public class AgreementFeesCollectionResponseDTO {
 
     private BigDecimal customTotal;
 
+    private BigDecimal pendingDues;
+
+    private BigDecimal customPendingDues;
+
     private LocalDate customFrom;
 
     private LocalDate customTo;

@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.rentagreement.enums.AgreementStatus;
+import com.rentagreement.enums.AgreementFeeStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -286,6 +287,12 @@ public class BrokerDashboardServiceImpl
 
                 .monthlyRent(
                         agreement.getMonthlyRent()
+                )
+
+                .feeStatus(
+                        agreement.getFeeStatus() == null
+                                ? AgreementFeeStatus.PENDING
+                                : agreement.getFeeStatus()
                 )
 
                 .status(
